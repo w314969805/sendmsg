@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lanqiao.springmvc.mapper.StudentMapper">
+
+	<insert id="register" parameterType="org.lanqiao.springmvc.pojo.Student">
+		insert into student values(#{sno},#{sname},#{sage},#{ssex})
+	</insert>
+
+</mapper>
+

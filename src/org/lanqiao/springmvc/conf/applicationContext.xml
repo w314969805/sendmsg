@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+	<!-- 扫描服务层 -->
+	<context:component-scan base-package="org.lanqiao.springmvc.service" />
+
+	<!-- SM整合 -->
+	<!-- 1、mybatis接口扫描，使其在bean容器中注册(自动装配) -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 接口包路径，告诉扫描器哪些路径下的接口进行注册 -->
+		<property name="basePackage" value="org.lanqiao.springmvc.mapper" />
+		<!-- 对应mybatis框架原来的sqlSessionFactory -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	<!-- 2、定义会话工厂 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 实体类对应的映射文件 -->
+		<property name="typeAliasesPackage" value="org.lanqiao.springmvc.pojo"></property>
+		<property name="mapperLocations" value="classpath:org/lanqiao/springmvc/pojo/*.xml" />
+		<!-- 数据源信息 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 整合完毕 -->
+
+	<!-- 连接数据库 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl" />
+		<property name="username" value="scott" />
+		<property name="password" value="tiger" />
+	</bean>
+
+	<!-- 事务管理 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:advice id="txadvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut
+			expression="execution(* org.lanqiao.spring.springmvc.service.impl.*.*(..))"
+			id="mypoint" />
+		<aop:advisor advice-ref="txadvice" pointcut-ref="mypoint" />
+	</aop:config>
+	<!-- 管理完毕 -->
+</beans>
